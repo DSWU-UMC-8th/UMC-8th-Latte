@@ -111,9 +111,9 @@ export const MovieDetailPage = () => {
                                 </div>
                                 ))}
                             </div>
-                            </div>
+                        </div>
                     </div>
-                )};
+                )}
             </div>
         </>
     );
