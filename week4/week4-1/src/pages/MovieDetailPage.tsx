@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Detail } from "../types/detail";
+import { MovieDetailResponse } from "../types/detail";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { CastResonse } from "../types/credit";
 import useCustomFetch from "../hooks/useCustomFetch";
@@ -14,7 +14,7 @@ export const MovieDetailPage = () => {
         data: movie, 
         isPending, 
         isError 
-    } = useCustomFetch<Detail>(detailUrl, 'ko-KR');
+    } = useCustomFetch<MovieDetailResponse>(detailUrl, 'ko-KR');
 
     const { 
         data: credit, 
