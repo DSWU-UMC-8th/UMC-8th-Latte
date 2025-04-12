@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForms";
 import { UserSigninInformation, validateSignin } from "../utils/validate";
 
@@ -12,6 +13,8 @@ const LoginPage = () => {
         validate: validateSignin,
     });
 
+    const navigate = useNavigate();
+
     const handleSubmit = () => {
         console.log(values);
     };
@@ -24,6 +27,17 @@ const LoginPage = () => {
     return (
         <div className="flex flex-col justify-center items-center h-full gap-4
             w-full bg-black text-white">
+                
+            <div className="relative flex items-center w-full max-w-[320px] mb-8">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="text-white text-xl absolute left-0 ml-[10px]"
+                >
+                    {"<"}
+                </button>
+                <h1 className="text-center w-full text-xl font-bold">로그인</h1>
+            </div>
+            
             <div className="flex flex-col gap-3">
                 <input
                     {...getInputProps("email")}
@@ -53,7 +67,7 @@ const LoginPage = () => {
                     onClick={handleSubmit}
                     disabled={isDisabled}
                     className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-gray-400"
-                >
+                >gi
                     로그인
                 </button>
             </div>
