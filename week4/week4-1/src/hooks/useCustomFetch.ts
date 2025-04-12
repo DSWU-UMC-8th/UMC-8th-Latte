@@ -7,7 +7,9 @@ interface APiResopnse<T> {
     isError: boolean;
 }
 
-function useCustomFetch<T>(url: string): APiResopnse<T>{
+type Language = "ko-KR" | "en-US";
+
+function useCustomFetch<T>(url: string, language:Language ='en-US'): APiResopnse<T>{
         const [data, setData] = useState<T | null>(null);
         const [isPending, setIsPending] = useState(false); 
         const [isError, setIsError] = useState(false); 
@@ -22,7 +24,10 @@ function useCustomFetch<T>(url: string): APiResopnse<T>{
                         {
                             headers: {
                                 Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`
-                            }
+                            },
+                            params: {
+                                language,
+                            },
                         }
                     );
                     
@@ -35,7 +40,7 @@ function useCustomFetch<T>(url: string): APiResopnse<T>{
             };
     
             fetchData();
-        }, [url]);
+        }, [url, language]);
 
         return { data, isPending, isError }
 }

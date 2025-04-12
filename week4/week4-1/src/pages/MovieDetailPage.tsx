@@ -7,18 +7,18 @@ import useCustomFetch from "../hooks/useCustomFetch";
 export const MovieDetailPage = () => {
     const { movieId } = useParams();
 
-    const detailUrl = `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`;
-    const creditUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`;
+    const detailUrl = `https://api.themoviedb.org/3/movie/${movieId}`;
+    const creditUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits`;
 
     const { 
         data: movie, 
         isPending, 
         isError 
-    } = useCustomFetch<Detail>(detailUrl);
+    } = useCustomFetch<Detail>(detailUrl, 'ko-KR');
 
     const { 
         data: credit, 
-    } = useCustomFetch<CastResonse>(creditUrl);
+    } = useCustomFetch<CastResonse>(creditUrl, 'ko-KR');
 
     if(isError) {
         return (
