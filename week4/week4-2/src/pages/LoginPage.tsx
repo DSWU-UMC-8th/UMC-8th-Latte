@@ -52,7 +52,7 @@ const LoginPage = () => {
                     type="button"
                     onClick={handleSubmit}
                     disabled={isDisabled}
-                    className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:gray"
+                    className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-gray-400"
                 >
                     로그인
                 </button>
