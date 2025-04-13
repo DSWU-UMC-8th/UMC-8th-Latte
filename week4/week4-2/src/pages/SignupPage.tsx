@@ -3,7 +3,6 @@ import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import {z} from 'zod';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { data } from 'react-router-dom';
 import { ResponseSignupDto } from '../types/auth';
 import { postSignup } from '../apis/auth';
 

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForms";
 import { UserSigninInformation, validateSignin } from "../utils/validate";
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
+import { postSignin } from "../apis/auth";
 
 const LoginPage = () => {
 
@@ -16,8 +17,17 @@ const LoginPage = () => {
 
     const navigate = useNavigate();
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log(values);
+
+        try {
+            const response = await postSignin(values);
+            localStorage.setItem("accessToken", response.data.accessToken); 
+            console.log(response);
+        } catch (e) {
+            alert(e);
+        }
+
     };
 
     // 오류가 하나라도 있거나, 입력값이 비어있으면 버튼 비활성화
