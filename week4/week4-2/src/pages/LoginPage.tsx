@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForms";
 import { UserSigninInformation, validateSignin } from "../utils/validate";
+import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 
 const LoginPage = () => {
 
@@ -29,12 +30,10 @@ const LoginPage = () => {
             w-full bg-black text-white">
                 
             <div className="relative flex items-center w-full max-w-[320px] mb-8">
-                <button
+                <ChevronLeftIcon
                     onClick={() => navigate(-1)}
-                    className="text-white text-xl absolute left-0 ml-[10px]"
-                >
-                    {"<"}
-                </button>
+                    className="text-white size-6 absolute left-0 ml-[10px]"
+                />
                 <h1 className="text-center w-full text-xl font-bold">로그인</h1>
             </div>
             
@@ -74,5 +73,6 @@ const LoginPage = () => {
         </div>
     )
 };
+
 
 export default LoginPage;
