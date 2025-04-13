@@ -28,7 +28,7 @@ const LoginPage = () => {
             navigate('/');
         } catch (e) {
             // console.log(e);
-            alert(e?.message);
+            alert(e);
         }
 
     };
@@ -42,7 +42,7 @@ const LoginPage = () => {
         <div className="flex flex-col justify-center items-center h-full gap-4
             w-full bg-black text-white">
             
-            <Header />
+            <Header title="로그인" />
             
             <div className="flex flex-col gap-3">
                 <input

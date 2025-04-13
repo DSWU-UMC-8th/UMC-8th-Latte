@@ -16,7 +16,7 @@ export const postSignin = async(body: RequestSigninDto):Promise<ResponseSigninDt
 }
 
 export const getMyInfo = async(): Promise<ResponseMyInfoDto> => {
-    const {getItem} = useLocalStorage(LOCAL_STORAGE_KEY.accessToken); 
+    const {getItem} = useLocalStorage(LOCAL_STORAGE_KEY.accessToken); // 무시 가능
     const token = getItem();
     const {data} = await axiosInstance.get('/v1/users/me', {
         headers: {
