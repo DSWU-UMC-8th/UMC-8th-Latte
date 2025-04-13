@@ -28,7 +28,8 @@ const LoginPage = () => {
     return (
         <div className="flex flex-col justify-center items-center h-full gap-4
             w-full bg-black text-white">
-                
+            
+            {/* 헤더 */}
             <div className="relative flex items-center w-full max-w-[320px] mb-8">
                 <ChevronLeftIcon
                     onClick={() => navigate(-1)}
