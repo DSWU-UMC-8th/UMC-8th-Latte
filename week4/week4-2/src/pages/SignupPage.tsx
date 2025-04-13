@@ -6,7 +6,7 @@ import { ResponseSignupDto } from '../types/auth';
 import { postSignup } from '../apis/auth';
 import Header from "../components/Header";
 import { useState } from "react";
-import { EnvelopeIcon, UserCircleIcon } from '@heroicons/react/24/solid'
+import { EnvelopeIcon, UserCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid'
 
 const schema = z
     .object({
@@ -64,12 +64,16 @@ const SignupPage = () => {
     // step에 따른 조건
     const isStep1Valid = !errors.email && email;
     const isStep2Valid = !errors.password && !errors.passwordCheck && password && passwordCheck;
+    
+    // 비밀번호 보이기
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordCheck, setShowPasswordCheck] = useState(false);
 
     const onSubmit:SubmitHandler<FormFields> = async (data) => {
         console.log(data); // 계정 확인
         const {passwordCheck, ...rest} = data; // 역구조분해할당
         console.log(passwordCheck);
-        
+
         const response: ResponseSignupDto = await postSignup(rest);
         console.log(response); // 요청 확인
 
@@ -110,26 +114,52 @@ const SignupPage = () => {
                 {/* 비밀번호 */}
                 {step === 2 && (
                     <>  
-                    <div className="flex gap-2 items-center mb-2">
-                        <EnvelopeIcon className="w-[20px] h-[20px] color-white" />
-                        <p>{email}</p>
-                    </div>
-                        <input
-                            {...register('password')}
-                            className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm 
-                                ${errors?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
-                            type={"password"}
-                            placeholder={"비밀번호"}
-                        />
+                        <div className="flex gap-2 items-center mb-2">
+                            <EnvelopeIcon className="w-[20px] h-[20px] color-white" />
+                            <p>{email}</p>
+                        </div>
+                        
+                        <div className="relative w-[300px]">
+                            <input
+                                {...register('password')}
+                                className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm 
+                                    ${errors?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                type={showPassword ? "text" : "password"}
+                                placeholder={"비밀번호"}
+                            />
+                            <div
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                                onClick={() => setShowPassword(prev => !prev)}
+                            >
+                                {showPassword ? (
+                                    <EyeIcon className="w-5 h-5 text-gray-600" />
+                                ) : (
+                                    <EyeSlashIcon className="w-5 h-5 text-gray-600" />
+                                )}
+                            </div>
+                        </div>
                         {errors.password && <div className={'text-red-500 text-sm'}>{errors.password.message}</div>}
-
-                        <input
-                            {...register("passwordCheck")}
-                            type={"password"}
-                            className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm
-                                ${errors?.passwordCheck ? "border-red-500 bg-red-200" : "border-gray-300"}`}
-                            placeholder={"비밀번호 확인"}
-                        />
+                        
+                        {/* 비밀번호 확인 입력 */}
+                        <div className="relative w-[300px]">
+                            <input
+                                {...register("passwordCheck")}
+                                type={showPasswordCheck ? "text" : "password"}
+                                className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm
+                                    ${errors?.passwordCheck ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                placeholder={"비밀번호 확인"}
+                            />
+                            <div
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                                onClick={() => setShowPasswordCheck(prev => !prev)}
+                            >
+                                {showPasswordCheck ? (
+                                    <EyeIcon className="w-5 h-5 text-gray-600" />
+                                ) : (
+                                    <EyeSlashIcon className="w-5 h-5 text-gray-600" />
+                                )}
+                            </div>
+                        </div>
                         {errors.passwordCheck && <div className={'text-red-500 text-sm'}>{errors.passwordCheck.message}</div>}
                     
                         <button
@@ -170,8 +200,6 @@ const SignupPage = () => {
                     </>
                 )}
                 
-
-
             </div>
         </div>
     )
