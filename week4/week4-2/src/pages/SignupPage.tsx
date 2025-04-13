@@ -5,6 +5,7 @@ import {SubmitHandler, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ResponseSignupDto } from '../types/auth';
 import { postSignup } from '../apis/auth';
+import Header from "../components/Header";
 
 const schema = z
     .object({
@@ -63,13 +64,7 @@ const SignupPage = () => {
         <div className="flex flex-col justify-center items-center h-full gap-4
             w-full bg-black text-white">
             
-            <div className="relative flex items-center w-full max-w-[320px] mb-8">
-                <ChevronLeftIcon
-                    onClick={() => navigate(-1)}
-                    className="text-white size-6 absolute left-0 ml-[10px]"
-                />
-                <h1 className="text-center w-full text-xl font-bold">회원가입</h1>
-            </div>
+            <Header />
 
             <div className="flex flex-col gap-3">
                 <input
