@@ -36,6 +36,8 @@ type FormFields = z.infer<typeof schema> // 타입 유추
 
 const SignupPage = () => {
 
+    const navigate = useNavigate();
+
     const {register, handleSubmit, formState: {errors, isSubmitting},
     } = useForm<FormFields>({
         defaultValues: {
@@ -54,9 +56,8 @@ const SignupPage = () => {
         const response: ResponseSignupDto = await postSignup(rest);
     
         console.log(response); // 요청 확인
+        navigate('/login');
     };
-    
-    const navigate = useNavigate();
 
     return (
         <div className="flex flex-col justify-center items-center h-full gap-4

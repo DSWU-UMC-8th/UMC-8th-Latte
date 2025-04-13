@@ -24,8 +24,11 @@ const LoginPage = () => {
             const response = await postSignin(values);
             localStorage.setItem("accessToken", response.data.accessToken); 
             console.log(response);
+            
+            navigate('/');
         } catch (e) {
-            alert(e);
+            // console.log(e);
+            alert(e?.message);
         }
 
     };
