@@ -103,7 +103,7 @@ const SignupPage = () => {
                         <button
                             type="button"
                             disabled={!isStep1Valid}
-                            className="w-full bg-pink-600 text-white/50 py-2 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors 
+                            className="w-full bg-pink-600 text-white py-2 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors 
                                 cursor-pointer disabled:bg-neutral-800"
                             onClick={() => setStep(2)}
                         >
@@ -166,7 +166,7 @@ const SignupPage = () => {
                         <button
                             type="button"
                             disabled={!isStep2Valid}
-                            className="w-full bg-pink-600 text-white/50 py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors 
+                            className="w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors 
                                 cursor-pointer disabled:bg-neutral-800"
                             onClick={() => setStep(3)}
                         >
@@ -195,7 +195,7 @@ const SignupPage = () => {
                             type="button"
                             onClick={handleSubmit(onSubmit)} 
                             disabled={isSubmitting || !name || !!errors.name}
-                            className= "w-full bg-pink-600 text-white/50 py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-neutral-800"
+                            className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-neutral-800"
                         >
                             회원가입
                         </button>
@@ -208,5 +208,3 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
-
-
