@@ -93,8 +93,8 @@ const SignupPage = () => {
                         <input
                             {...register('email')}
                             name="email"
-                            className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm
-                                ${errors?.email ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                            className={`bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm
+                                ${errors?.email ? "border-red-500" : "border-gray-300"}`}
                             type={"email"}
                             placeholder={"이메일"}
                         />
@@ -103,7 +103,8 @@ const SignupPage = () => {
                         <button
                             type="button"
                             disabled={!isStep1Valid}
-                            className="w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-gray-400"
+                            className="w-full bg-pink-600 text-white/50 py-2 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors 
+                                cursor-pointer disabled:bg-neutral-800"
                             onClick={() => setStep(2)}
                         >
                             다음
@@ -122,8 +123,8 @@ const SignupPage = () => {
                         <div className="relative w-[300px]">
                             <input
                                 {...register('password')}
-                                className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm 
-                                    ${errors?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                className={`bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm 
+                                    ${errors?.password ? "border-red-500" : "border-gray-300"}`}
                                 type={showPassword ? "text" : "password"}
                                 placeholder={"비밀번호"}
                             />
@@ -145,8 +146,8 @@ const SignupPage = () => {
                             <input
                                 {...register("passwordCheck")}
                                 type={showPasswordCheck ? "text" : "password"}
-                                className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm
-                                    ${errors?.passwordCheck ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                className={`bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm
+                                    ${errors?.passwordCheck ? "border-red-500" : "border-gray-300"}`}
                                 placeholder={"비밀번호 확인"}
                             />
                             <div
@@ -165,7 +166,8 @@ const SignupPage = () => {
                         <button
                             type="button"
                             disabled={!isStep2Valid}
-                            className="w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-gray-400"
+                            className="w-full bg-pink-600 text-white/50 py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors 
+                                cursor-pointer disabled:bg-neutral-800"
                             onClick={() => setStep(3)}
                         >
                                 다음
@@ -182,8 +184,8 @@ const SignupPage = () => {
 
                         <input
                             {...register('name')}
-                            className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm
-                                ${errors?.email ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                            className={`bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm
+                                ${errors?.email ? "border-red-500" : "border-gray-300"}`}
                             type={"name"}
                             placeholder={"이름"}
                         />
@@ -193,7 +195,7 @@ const SignupPage = () => {
                             type="button"
                             onClick={handleSubmit(onSubmit)} 
                             disabled={isSubmitting || !name || !!errors.name}
-                            className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-gray-400"
+                            className= "w-full bg-pink-600 text-white/50 py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-neutral-800"
                         >
                             회원가입
                         </button>

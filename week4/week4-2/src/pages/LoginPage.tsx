@@ -48,8 +48,8 @@ const LoginPage = () => {
                 <input
                     {...getInputProps("email")}
                     name="email"
-                    className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm
-                        ${errors?.email && touched?.email ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                    className={`disabled:bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm
+                        ${errors?.email && touched?.email ? "border-red-500" : "border-gray-300"}`}
                     type={"email"}
                     placeholder={"이메일"}
                 />
@@ -59,7 +59,7 @@ const LoginPage = () => {
 
                 <input
                     {...getInputProps("password")}
-                    className={`border border-[#ccc] w-[300px] p-[10px] focus:border-pink rounded-sm 
+                    className={`disabled:bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm 
                         ${errors?.password && touched?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                     type={"password"}
                     placeholder={"비밀번호"}
@@ -72,7 +72,7 @@ const LoginPage = () => {
                     type="button"
                     onClick={handleSubmit}
                     disabled={isDisabled}
-                    className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-gray-400"
+                    className= "w-full bg-pink-600 text-white/50 py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-neutral-800"
                 >
                     로그인
                 </button>
