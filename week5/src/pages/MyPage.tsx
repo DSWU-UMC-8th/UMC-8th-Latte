@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { getMyInfo } from "../apis/auth";
 import { ResponseMyInfoDto } from "../types/auth";
+import { useAuth } from "../context/AuthContext";
 
 const MyPage = () => {
+    const { logout } = useAuth();
     const [data, setData] = useState<ResponseMyInfoDto | null>(null);
 
     useEffect(() => {
@@ -15,6 +17,10 @@ const MyPage = () => {
         getData();
     }, []);
 
+    const handleLogout = async () => {
+        await logout();
+    };
+
     return (
         <div className="flex flex-col justify-center items-center h-full gap-4
             w-full bg-black text-white">
@@ -23,6 +29,7 @@ const MyPage = () => {
                 이름: {data?.data.name} <br/ >
                 이메일: {data?.data.email}
             </div>
+            <button className="bg-gray-800 p-[8px] cursor-pointer rounded-sm" onClick={handleLogout}>로그아웃</button>
         </div>
     )
 }

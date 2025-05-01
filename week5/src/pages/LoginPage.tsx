@@ -1,10 +1,19 @@
-import { useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForms";
 import { UserSigninInformation, validateSignin } from "../utils/validate";
-import { postSignin } from "../apis/auth";
 import Header from "../components/Header";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const LoginPage = () => {
+    const { login, accessToken } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(()=> { // 로그인 후 로그인 창 안 뜨게
+        if(accessToken){
+            navigate("/");
+        }
+    }, [navigate, accessToken]);
 
     const { values, errors, touched, getInputProps } = useForm<UserSigninInformation>({
         initialValue: {
@@ -15,22 +24,8 @@ const LoginPage = () => {
         validate: validateSignin,
     });
 
-    const navigate = useNavigate();
-
     const handleSubmit = async () => {
-        console.log(values);
-
-        try {
-            const response = await postSignin(values);
-            localStorage.setItem("accessToken", response.data.accessToken); 
-            console.log(response);
-            
-            navigate('/');
-        } catch (e) {
-            // console.log(e);
-            alert(e);
-        }
-
+        await login(values);
     };
 
     // 오류가 하나라도 있거나, 입력값이 비어있으면 버튼 비활성화
