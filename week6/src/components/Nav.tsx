@@ -1,9 +1,19 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { getMyInfo } from "../apis/auth";
+import { ResponseMyInfoDto } from "../types/auth";
+import { FaBars } from "react-icons/fa";
 
-const Navbar = () => {
+interface NavbarProps {
+    onToggleSidebar: () => void;
+}
+
+const Navbar = ({ onToggleSidebar }: NavbarProps) => {
     const { accessToken } = useAuth();
     const navigate = useNavigate();
+    const { logout } = useAuth();
+    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
 
     const handleNavigate = (e: React.MouseEvent<HTMLButtonElement>) => {
         const id = e.currentTarget.id;
@@ -13,14 +23,38 @@ const Navbar = () => {
         else if (id === 'signup') navigate('/signup');
     };
 
+    useEffect(() => {
+        if (!accessToken) return;
+
+        const getData = async () => {
+            const response = await getMyInfo();
+            console.log(response);
+            setData(response);
+        }
+
+        getData();
+    }, [accessToken]);
+
+    const handleLogout = async () => {
+        await logout();
+    };
+
     return (
         <nav className="w-full bg-black/90 text-white px-8 py-4 flex items-center justify-between shadow-md">
-            <button 
-                id="logo" 
-                onClick={handleNavigate}
-                className="text-pink-500 font-bold text-xl cursor-pointer">
-                    UMC-8th
-            </button>
+            <div className="flex gap-5">
+                <button onClick={onToggleSidebar}>
+                    <FaBars size={20} />
+                </button>
+                
+                <button 
+                    id="logo" 
+                    onClick={handleNavigate}
+                    className="text-pink-500 font-bold text-xl cursor-pointer">
+                        UMC-8th
+                </button>
+            </div>
+            
+            
             <div className="flex gap-2">
                 {!accessToken && (
                     <>
@@ -42,22 +76,13 @@ const Navbar = () => {
             </div>
             
             {accessToken && (
-                <>
-                    <Link
-                        to={"/mypage"}
-                        className="text-pink-500 dark:text-gray-300 hover:text-pink-600"
-                    >
-                        마이페이지
-                    </Link>
-                </>
+                <div className="flex justify-center items-center gap-5">
+                    <p>{data?.data.name}님 반갑습니다. </p>
+                    <button className="border-none bg-none text-white hover:text-pink-600
+                        p-[8px] cursor-pointer" onClick={handleLogout}>로그아웃</button>
+                </div>
             )}
-
-            <Link
-                to={"/search"}
-                className="text-pink-500 dark:text-gray-300 hover:text-pink-600"
-            >
-                검색
-            </Link>
+            
         </nav>
     );
 };
