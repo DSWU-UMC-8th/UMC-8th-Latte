@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import HomeLayout from "./HomeLayout";
 
 const ProtectedLayout = () => {
     const {accessToken } =useAuth();
@@ -9,9 +10,9 @@ const ProtectedLayout = () => {
     }
 
     return (
-        <div className="h-dvh flex flex-col">
+        <HomeLayout>
             <Outlet />
-        </div>  
+        </HomeLayout>  
     )
 };
 

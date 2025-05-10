@@ -81,7 +81,7 @@ const LoginPage = () => {
                     className= "w-full bg-white text-black py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-neutral-800"
                 >
                     <div className="flex items-center justify-center gap-2">
-                        <img src={"/images/googleLogo.png"} alt="구글 로고 이미지" className="size-5"/>
+                        <img src={"/googleLogo.png"} alt="구글 로고 이미지" className="size-5"/>
                         <span>구글 로그인</span>
                     </div>
                 </button>

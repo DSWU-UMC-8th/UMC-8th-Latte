@@ -28,7 +28,6 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
 
         const getData = async () => {
             const response = await getMyInfo();
-            console.log(response);
             setData(response);
         }
 

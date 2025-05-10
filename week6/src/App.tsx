@@ -11,6 +11,7 @@ import ProtectedLayout from './layouts/ProtectedLayout';
 import { GoogleLoginRedirectPage } from './pages/GoogleLoginRedirectPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import LpDetailPage from './pages/LPDetailPage';
 
 const publicRoutes: RouteObject[] =[
   {
@@ -33,6 +34,7 @@ const protectedRoutes: RouteObject[] = [
     errorElement: <NotFoundPage />,
     children: [
       { path: "mypage", element: <MyPage /> },
+      { path: "lp/:id", element: <LpDetailPage /> },
     ],
   }
 ]

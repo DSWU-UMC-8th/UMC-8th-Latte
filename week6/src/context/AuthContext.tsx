@@ -56,7 +56,7 @@ export const AuthProvider = ({children}: PropsWithChildren) => {
                 setRefreshToken(newRefreshToken); 
 
                 alert("로그인 성공");
-                window.location.href = "mypage"; //navigate는 router 안에서만 사용 가능 
+                window.location.href = "/"; //navigate는 router 안에서만 사용 가능 
             }
 
         } catch (error) {
