@@ -17,12 +17,13 @@ const Sidebar = ({ isOpen, onClose }: Props) => {
     // 바깥 클릭 시 닫기
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) {
+            if (!isOpen) return;
+            if (ref.current && !e.composedPath().includes(ref.current)) {
                 onClose();
             }
         };
     
-        if (isOpen) document.addEventListener("mousedown", handleClick);
+        document.addEventListener("mousedown", handleClick);
         return () => document.removeEventListener("mousedown", handleClick);
     }, [isOpen, onClose]);
     
