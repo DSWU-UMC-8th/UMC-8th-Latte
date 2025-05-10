@@ -29,7 +29,7 @@ const HomePage = () => {
     };
 
     return (
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-full h-full p-5">
             <div className="flex justify-end p-4 gap-2">
                 <div className="rounded border border-gray-400 overflow-hidden">
                     <button
@@ -65,7 +65,7 @@ const HomePage = () => {
                         key={lp.id}
                         onClick={() => handleCardClick(lp.id)} 
                         className="w-full aspect-square bg-gray-800 overflow-hidden rounded
-                        hover:scale-120 transition-transform duration-200 relative group"
+                        hover:scale-120 hover:z-20 z-0 transition-transform duration-200 relative group"
                     >
                         <img
                             src="/bambi.jpg" // {lp.thumbnail}
