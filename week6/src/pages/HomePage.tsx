@@ -1,14 +1,35 @@
-import { useState } from "react";
-import useGetLpList from "../hooks/queries/useGetLpList";
+import { useEffect, useState } from "react";
 import { PAGINATION_ORDER } from "../enums/common";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import useGetInfiniteLpList from "../hooks/queries/useGetInfiniteLpList";
+import { useInView } from "react-intersection-observer";
+import LpCard from "../components/LpCard/LpCard";
+import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList";
 
 const HomePage = () => {
     const [order, setOrder] = useState<PAGINATION_ORDER>(PAGINATION_ORDER.desc);
-    const {data, isPending, isError } = useGetLpList({order});
-    const navigate = useNavigate();
-    const { accessToken } = useAuth();
+    // const {data, isPending, isError } = useGetLpList({order});
+    const [search, setSearch] = useState("");
+    const { 
+        data:lps, 
+        isFetching, 
+        hasNextPage, 
+        isPending, 
+        fetchNextPage, 
+        isError
+    } = useGetInfiniteLpList(3, search, PAGINATION_ORDER.desc);
+    
+    // ref: 특정한 HTML요소 감시, inView: 그 요소가 화면에 보이면 true
+    const { ref, inView } = useInView({
+        threshold: 0,
+    })
+
+    useEffect(() => {
+        if(inView) {
+            if (!isFetching && hasNextPage) {
+                fetchNextPage();  
+            }
+        }
+    }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
     if(isPending) {
         return <div className={"mt-20 p-10"}>Loading...</div>
@@ -18,23 +39,25 @@ const HomePage = () => {
         <div className={"mt-20"}>Error</div>
     }
 
-    const handleCardClick = (id: number) => {
-        if (!accessToken) {
-            if (confirm("로그인이 필요한 서비스입니다. 로그인을 해주세요!")) {
-                navigate("/login");
-            }
-        } else {
-            navigate(`/lp/${id}`);
-        }
-    };
+
 
     return (
-        <div className="flex flex-col w-full h-full p-5">
-            <div className="flex justify-end p-4 gap-2">
-                <div className="rounded border border-gray-400 overflow-hidden">
+        <div className="flex flex-col w-full h-full p-4">
+            <div className="flex justify-end p-4 gap-5 items-center">
+
+                <input
+                    className="p-3 rounded bg-gray-800 text-white w-64"
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="검색어를 입력하세요"
+                    autoFocus
+                />
+
+                <div className="flex rounded border border-gray-400 overflow-hidden">
                     <button
                         onClick={() => setOrder(PAGINATION_ORDER.asc)}
-                        className={`px-4 py-2 text-sm font-medium 
+                        className={`w-50% px-4 py-2 text-sm font-medium 
                             ${
                             order === PAGINATION_ORDER.asc
                                 ? "bg-gray-100 text-black"
@@ -46,7 +69,7 @@ const HomePage = () => {
                     </button>
                     <button
                         onClick={() => setOrder(PAGINATION_ORDER.desc)}
-                        className={`px-4 py-2 text-sm font-medium
+                        className={`w-50% px-4 py-2 text-sm font-medium
                             ${
                             order === PAGINATION_ORDER.desc
                                 ? "bg-gray-100 text-black"
@@ -58,38 +81,13 @@ const HomePage = () => {
                     </button>
                 </div>
             </div>
-
-            <div className="grid grid-cols-5 gap-2 p-6 bg-black text-white">
-                {data?.map((lp) => (
-                    <div 
-                        key={lp.id}
-                        onClick={() => handleCardClick(lp.id)} 
-                        className="w-full aspect-square bg-gray-800 overflow-hidden rounded
-                        hover:scale-120 hover:z-20 z-0 transition-transform duration-200 relative group"
-                    >
-                        <img
-                            src="/bambi.jpg" // {lp.thumbnail}
-                            alt={lp.title}
-                            className="w-full h-full object-cover"
-                        />
-
-                        {/* hover 시 보여지는 정보 */}
-                        <div
-                            className="absolute bottom-0 left-0 size-full p-3
-                            bg-gradient-to-t from-black/90 to-black/20
-                            opacity-0 group-hover:opacity-100
-                            transition-opacity duration-300 text-sm
-                            flex flex-col justify-end"
-                        >
-                            <h3 className="font-semibold truncate">{lp.title}</h3>
-                            <p className="text-xs text-gray-300 mt-1">
-                                {new Date(lp.createdAt).toISOString().slice(0, 10)}
-                            </p>
-                            <p className="text-xs mt-1">❤️ {lp.likes?.length}</p>
-                        </div>
-                    </div>
-                ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-6 bg-black text-white">
+                {lps?.pages?.map((page) => page.data.data)
+                    ?.flat()
+                    ?.map((lp) => (<LpCard key={lp.id} lp={lp} />))}
+                {isFetching && <LpCardSkeletonList count={20} />}
             </div>
+            <div ref={ref} className="h-2"></div>
         </div>
 
     )

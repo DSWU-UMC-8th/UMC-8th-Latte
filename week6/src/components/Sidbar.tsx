@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaSearch, FaUser } from "react-icons/fa";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface Props {
     isOpen: boolean;
@@ -10,9 +10,6 @@ interface Props {
 
 const Sidebar = ({ isOpen, onClose }: Props) => {
     const ref = useRef<HTMLDivElement>(null);
-
-    const [showInput, setShowInput] = useState(false);
-    const [search, setSearch] = useState("");
     
     // 바깥 클릭 시 닫기
     useEffect(() => {
@@ -37,25 +34,12 @@ const Sidebar = ({ isOpen, onClose }: Props) => {
             `}
         >
             <div className="text-white">
-                {!showInput ? (
-                    <button
-                        onClick={() => setShowInput(true)}
-                        className="flex items-center gap-3 hover:text-pink-500 mt-5"
-                        >
-                        <FaSearch /> 찾기
-                    </button>
-                ) : (
-                    <input
-                        className="mt-5 p-2 rounded bg-gray-800 text-white w-full"
-                        type="text"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="검색어를 입력하세요"
-                        autoFocus
-                        onBlur={() => setShowInput(false)} // 포커스 잃으면 닫기
-                    />
-                )}
-                </div>
+                <button
+                    className="flex items-center gap-3 hover:text-pink-500 mt-5"
+                >
+                    <FaSearch /> 찾기
+                </button>
+            </div>
 
             <Link to="/mypage" className="flex items-center gap-3 hover:text-pink-500 mt-7">
                 <FaUser /> 마이페이지

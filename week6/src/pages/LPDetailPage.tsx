@@ -37,7 +37,7 @@ const LpDetailPage = () => {
               className="w-8 h-8 rounded-full" />
             <span className="font-medium">{userInfo?.data.name}</span>
           </div>
-          <span>1일전</span>            
+          <span>{new Date(lp.createdAt).toISOString().slice(0, 10)}</span>            
         </div>
 
         <div className="flex justify-between mt-8">
