@@ -52,3 +52,25 @@ export type LpDetail = {
         author: Author;
     };
 };
+
+
+export type Comment = {
+    id: number;
+    content: string;
+    lpId: number;
+    authorId: number;
+    createdAt: string;
+    updatedAt: string;
+    author: Author;
+};
+
+export type ResponseCommentListDto = {
+    data: {
+        data: Comment[];
+        nextCursor: number | null;
+        hasNext: boolean;
+    };
+    status: boolean;
+    statusCode: number;
+    message: string;
+};
