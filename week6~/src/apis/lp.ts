@@ -84,3 +84,24 @@ export const deleteComment = async (lpId: number, commentId: number) => {
     const { data } = await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`);
     return data;
 };
+
+export const updateLp = async (lpId: number, formData: FormData) => {
+    const title = formData.get('title')?.toString() || '';
+    const content = formData.get('content')?.toString() || '';
+    const tags = JSON.parse(formData.get('tags')?.toString() || '[]');
+
+    const lpData = {
+        title,
+        content,
+        tags,
+        published: true
+    };
+
+    const { data } = await axiosInstance.patch(`/v1/lps/${lpId}`, lpData);
+    return data;
+};
+
+export const deleteLp = async (lpId: number) => {
+    const { data } = await axiosInstance.delete(`/v1/lps/${lpId}`);
+    return data;
+};

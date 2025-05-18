@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { getMyInfo } from "../apis/auth";
 import { ResponseMyInfoDto } from "../types/auth";
 import { FaBars } from "react-icons/fa";
+import { useMutation } from '@tanstack/react-query';
+import { logout } from '../apis/auth';
 
 interface NavbarProps {
     onToggleSidebar: () => void;
@@ -12,8 +14,16 @@ interface NavbarProps {
 const Navbar = ({ onToggleSidebar }: NavbarProps) => {
     const { accessToken } = useAuth();
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { logout: handleLogout } = useAuth();
     const [data, setData] = useState<ResponseMyInfoDto | null>(null);
+
+    const logoutMutation = useMutation({
+        mutationFn: logout,
+        onSuccess: () => {
+            handleLogout();
+            navigate('/login');
+        },
+    });
 
     const handleNavigate = (e: React.MouseEvent<HTMLButtonElement>) => {
         const id = e.currentTarget.id;
@@ -34,8 +44,13 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
         getData();
     }, [accessToken]);
 
-    const handleLogout = async () => {
-        await logout();
+    const handleLogoutClick = async () => {
+        try {
+            await logoutMutation.mutateAsync();
+        } catch (error) {
+            console.error('로그아웃 실패:', error);
+            alert('로그아웃에 실패했습니다.');
+        }
     };
 
     return (
@@ -77,8 +92,13 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
             {accessToken && (
                 <div className="flex justify-center items-center gap-5">
                     <p>{data?.data.name}님 반갑습니다. </p>
-                    <button className="border-none bg-none text-white hover:text-pink-600
-                        p-[8px] cursor-pointer" onClick={handleLogout}>로그아웃</button>
+                    <button
+                        onClick={handleLogoutClick}
+                        disabled={logoutMutation.isPending}
+                        className="text-white hover:text-pink-500"
+                    >
+                        {logoutMutation.isPending ? '로그아웃 중...' : '로그아웃'}
+                    </button>
                 </div>
             )}
             

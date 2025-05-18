@@ -1,13 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { getMyInfo } from "../../apis/auth";
 import { QUERY_KEY } from "../../constants/key";
+import { ResponseMyInfoDto } from "../../types/auth";
 
 function useGetMyInfo(accessToken: string | null) {
-    return useQuery({
+    return useQuery<ResponseMyInfoDto>({
         queryKey: [QUERY_KEY.myInfo],
         queryFn: getMyInfo,
-        staleTime: 1000 * 60 * 5,
         enabled: !!accessToken,
+        staleTime: 0,
+        cacheTime: 0,
+        refetchOnMount: true,
+        refetchOnWindowFocus: true
     });
 }
 

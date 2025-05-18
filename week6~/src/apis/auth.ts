@@ -15,15 +15,15 @@ export const postSignin = async(body: RequestSigninDto):Promise<ResponseSigninDt
     return data;
 }
 
-export const getMyInfo = async(): Promise<ResponseMyInfoDto> => {
-    const {getItem} = useLocalStorage(LOCAL_STORAGE_KEY.accessToken); // 무시 가능
-    const token = getItem();
+// login 함수로도 export
+export const login = postSignin;
+
+export const getMyInfo = async(token: string): Promise<ResponseMyInfoDto> => {
     const {data} = await axiosInstance.get('/v1/users/me', {
         headers: {
             Authorization: `Bearer ${token}`
         }
     });
-
     return data;
 }
 
@@ -33,3 +33,25 @@ export const postLogout = async() => {
 
     return data;
 }
+
+// 프로필 수정
+export const updateProfile = async (formData: FormData, token: string) => {
+    const { data } = await axiosInstance.patch('/v1/users', formData, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    return data;
+};
+
+// 회원 탈퇴
+export const deleteAccount = async () => {
+  const { data } = await axiosInstance.delete('/v1/users');
+  return data;
+};
+
+// 로그아웃
+export const logout = async () => {
+  const { data } = await axiosInstance.post('/v1/auth/logout');
+  return data;
+};

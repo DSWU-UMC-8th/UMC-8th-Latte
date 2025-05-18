@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getMyInfo } from "../apis/auth";
 import { ResponseMyInfoDto } from "../types/auth";
@@ -12,11 +12,16 @@ import usePostLike from "../hooks/mutation/usePostLike";
 import useDeleteLike from "../hooks/mutation/useDeleteLike";
 import useGetMyInfo from "../hooks/queries/useGetMyInfo";
 import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
+import { deleteLp } from "../apis/lp";
+import LPModal from "../components/LP/LPModal";
 
 const LpDetailPage = () => {
   const { id } = useParams();
   const lpId = Number(id);
   const {accessToken} = useAuth();
+  const navigate = useNavigate();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const { data: lpData } = useGetLpDetail(lpId);
   const { data: userInfo } = useQuery<ResponseMyInfoDto>({
@@ -47,6 +52,35 @@ const LpDetailPage = () => {
     disLikeMutate({ lpId: Number(lpId) });
   };
 
+  const handleEdit = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('정말로 이 LP를 삭제하시겠습니까?')) {
+      try {
+        await deleteLp(lpId);
+        alert('LP 삭제가 완료되었습니다.');
+        navigate('/');
+      } catch (error: any) {
+        console.error('LP 삭제 중 오류 발생:', error);
+        let errorMessage = 'LP 삭제에 실패했습니다.';
+
+        if (error.response) {
+          if (error.response.status === 403) {
+            errorMessage = '삭제 권한이 없습니다.';
+          } else if (error.response.status === 500) {
+            errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+          }
+          if (error.response.data?.message) {
+            errorMessage += `\n${error.response.data.message}`;
+          }
+        }
+        alert(errorMessage);
+      }
+    }
+  };
+
   if (!lpData) {
     return (
       <div className="text-white text-center mt-10">
@@ -71,10 +105,22 @@ const LpDetailPage = () => {
 
           <div className="flex justify-between mt-8">
             <h1 className="text-xl font-semibold">{lp.title}</h1>
-            <div className="text-xl text-white flex gap-3 items-end">
-                <button className="hover:text-pink-500"><GoPencil /></button>
-                <button className="hover:text-pink-500"><RiDeleteBin6Line /></button>
-            </div>
+            {me?.data.id === lp?.authorId && (
+              <div className="text-xl text-white flex gap-3 items-end">
+                <button 
+                  onClick={handleEdit} 
+                  className="hover:text-pink-500 cursor-pointer"
+                >
+                  <GoPencil />
+                </button>
+                <button 
+                  onClick={handleDelete} 
+                  className="hover:text-pink-500 cursor-pointer"
+                >
+                  <RiDeleteBin6Line />
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="w-full flex justify-center mt-10">
@@ -121,6 +167,16 @@ const LpDetailPage = () => {
       <div className="mt-20">
         <CommentList lpId={lpId} currentUserId={me?.data.id ?? 0} />
       </div>
+
+      {isEditModalOpen && (
+        <LPModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          initialData={lp}
+          mode="edit"
+          lpId={lpId}
+        />
+      )}
     </div>
   );
 };
