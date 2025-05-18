@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { login } from '../apis/auth';
+import { postSignin } from '../apis/auth';
 import { useAuth } from '../context/AuthContext';
 import Header from "../components/Header";
 
@@ -12,7 +12,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
 
     const loginMutation = useMutation({
-        mutationFn: login,
+        mutationFn: postSignin,
         onSuccess: (data) => {
             handleLogin(data.data.accessToken, data.data.refreshToken);
             navigate('/');

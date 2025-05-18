@@ -8,10 +8,11 @@ function useGetMyInfo(accessToken: string | null) {
         queryKey: [QUERY_KEY.myInfo],
         queryFn: getMyInfo,
         enabled: !!accessToken,
-        staleTime: 0,
-        cacheTime: 0,
-        refetchOnMount: true,
-        refetchOnWindowFocus: true
+        staleTime: 0, // 항상 최신 데이터를 가져오도록
+        cacheTime: 1000 * 60 * 5,
+        refetchOnMount: 'always', // 컴포넌트 마운트 시 항상 리페치
+        refetchOnWindowFocus: true,
+        retry: 2
     });
 }
 

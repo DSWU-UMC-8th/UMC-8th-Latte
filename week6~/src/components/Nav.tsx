@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
-import { getMyInfo } from "../apis/auth";
+import { getMyInfo, postLogout } from "../apis/auth";
 import { ResponseMyInfoDto } from "../types/auth";
 import { FaBars } from "react-icons/fa";
 import { useMutation } from '@tanstack/react-query';
-import { logout } from '../apis/auth';
 
 interface NavbarProps {
     onToggleSidebar: () => void;
@@ -18,7 +17,7 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
     const [data, setData] = useState<ResponseMyInfoDto | null>(null);
 
     const logoutMutation = useMutation({
-        mutationFn: logout,
+        mutationFn: postLogout,
         onSuccess: () => {
             handleLogout();
             navigate('/login');

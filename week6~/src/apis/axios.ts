@@ -1,8 +1,8 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
-import { LOCAL_STORAGE_KEY } from "../constants/key";
+import axios from 'axios';
+import { LOCAL_STORAGE_KEY } from '../constants/key';
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
-interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
+interface CustomInternalAxiosRequestConfig {
     _retry?:boolean; // 요청 재시도 여부를 나타내는 플래그 
 }
 
@@ -10,25 +10,23 @@ interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
 let refreshPromise: Promise<string> | null = null;
 
 // baseURL 설정
-export const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_SERVER_API_URL,
+const axiosInstance = axios.create({
+    baseURL: 'http://localhost:8000',
+    withCredentials: true
 });
 
 // 요청 인터셉터: 모든 요청 전에 accessToken을 Authorization 헤더에 추가한다.
 axiosInstance.interceptors.request.use((config) => {
-    const { getItem } = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
-    const accessToken = getItem(); // localStorage에서 accessToken 가져오기
-
-    // accessToken 존재하면 Authorization 헤더에 Bearer 토큰 형식으로 추가 
-    if(accessToken) {
-        config.headers = config.headers || {};
-        config.headers.Authorization = `Bearer ${accessToken}`;
+    const token = localStorage.getItem(LOCAL_STORAGE_KEY.accessToken);
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
-
-    return config  // 수정된 요청 설정 반환
+    return config;
 },
     // 요청 인터셉터 실패시 에러 뿜음 
-    (error) => Promise.reject(error),
+    (error) => {
+        return Promise.reject(error);
+    }
 );
 
 // 응답 인터셉터: 401 에러 발생 -> refresh 토큰을 통한 토큰 갱신 처리 
@@ -94,14 +92,10 @@ axiosInstance.interceptors.response.use(
             return refreshPromise.then((newAccessToken) => {
 
                 // 원본 요청의 Authorization 헤더를 갱신된 토큰으로 업뎃 
-                originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-
-                // 업데이트 된 원본 요청 재시도 
-                return axiosInstance.request(originalRequest);
+                originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`
             });
         }
-
-        // 401 에러가 아닌 경우에 그대로 오류 반환
-        return Promise.reject(error);
-    },
+    }
 );
+
+export { axiosInstance };

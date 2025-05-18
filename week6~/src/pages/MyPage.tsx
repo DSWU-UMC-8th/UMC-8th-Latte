@@ -1,90 +1,66 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateProfile } from '../apis/auth';
-import useGetMyInfo from '../hooks/queries/useGetMyInfo';
-import { useAuth } from '../context/AuthContext';
-import { QUERY_KEY } from '../constants/key';
-import { ResponseMyInfoDto } from '../types/auth';
-
-// 사용자 데이터 타입 정의
-interface UserData {
-    id: number;
-    name: string;
-    email: string;
-    bio: string | null;
-    avatar: string | null;
-    createdAt: string;
-    updatedAt: string;
-}
-
-// API 응답 타입 정의
-interface ApiResponse {
-    status: boolean;
-    message: string;
-    statusCode: number;
-    data: UserData;
-}
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { getMyInfo } from "../apis/auth";
+import { ResponseMyInfoDto } from "../types/auth";
+import useEditMyInfo from "../hooks/mutations/useEditMyInfo";
 
 const MyPage = () => {
-    const queryClient = useQueryClient();
-    const { accessToken } = useAuth();
-    const { data: me, refetch } = useGetMyInfo(accessToken);
-    
+    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [name, setName] = useState('');
-    const [bio, setBio] = useState('');
+    const [name, setName] = useState("");
+    const [bio, setBio] = useState("");
     const [avatar, setAvatar] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+
+    const { mutate: editInfoMutate } = useEditMyInfo();
+
+    const fetchUserData = async () => {
+        try {
+            const response = await getMyInfo();
+            setData(response);
+            setName(response.data.name);
+            setBio(response.data.bio ?? "");
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        }
+    };
 
     useEffect(() => {
-        const userData = me as ResponseMyInfoDto | undefined;
-        if (userData?.data) {
-            setName(userData.data.name);
-            setBio(userData.data.bio || '');
-        }
-    }, [me]);
+        fetchUserData();
+    }, []);
 
-    const updateProfileMutation = useMutation<ApiResponse, Error, FormData>({
-        mutationFn: async (formData: FormData) => {
-            const response = await updateProfile(formData, accessToken);
-            return response;
-        },
-        onSuccess: async (response) => {
-            // 캐시 직접 업데이트
-            queryClient.setQueryData<ResponseMyInfoDto>([QUERY_KEY.myInfo], (old) => {
-                if (!old) return old;
-                return {
-                    ...old,
-                    data: {
-                        ...old.data,
-                        ...response.data
-                    }
-                };
-            });
-            
-            // 리페치
-            await refetch();
-            setIsEditing(false);
-        },
-    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim()) {
-            alert('이름을 입력해주세요.');
+            alert("닉네임은 빈칸일 수 없습니다!");
             return;
         }
 
-        const formData = new FormData();
-        formData.append('name', name);
-        if (bio) formData.append('bio', bio);
-        if (avatar) formData.append('avatar', avatar);
-
+        setUploading(true);
         try {
-            await updateProfileMutation.mutateAsync(formData);
+            const updateData = {
+                name,
+                bio: bio || null,
+                avatar: avatar ? URL.createObjectURL(avatar) : null
+            };
+
+            await editInfoMutate(updateData, {
+                onSuccess: async (response) => {
+                    console.log('Profile updated successfully:', response);
+                    await fetchUserData(); // 데이터 즉시 리로드
+                    setIsEditing(false);
+                },
+                onError: (error) => {
+                    console.error('Failed to update profile:', error);
+                    alert('프로필 수정에 실패했습니다.');
+                }
+            });
         } catch (error) {
-            console.error('프로필 수정 중 오류 발생:', error);
+            console.error('Error during profile update:', error);
             alert('프로필 수정에 실패했습니다.');
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -96,14 +72,14 @@ const MyPage = () => {
                         <div className="space-y-4">
                             <div className="flex items-center gap-4">
                                 <img
-                                    src={(me as ResponseMyInfoDto)?.data?.avatar || '/profileBase.png'}
+                                    src={data?.data.avatar || '/profileBase.png'}
                                     alt="프로필"
                                     className="w-24 h-24 rounded-full object-cover"
                                 />
                                 <div className="space-y-2">
-                                    <h2 className="text-2xl font-bold">{name}</h2>
-                                    <p className="text-gray-400">{(me as ResponseMyInfoDto)?.data?.email}</p>
-                                    <p className="text-gray-400">{bio || '소개가 없습니다.'}</p>
+                                    <h2 className="text-2xl font-bold">{data?.data.name}</h2>
+                                    <p className="text-gray-400">{data?.data.email}</p>
+                                    <p className="text-gray-400">{data?.data.bio || '소개가 없습니다.'}</p>
                                 </div>
                             </div>
 
@@ -117,7 +93,7 @@ const MyPage = () => {
                             </div>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSave} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">이름 *</label>
                                 <input
@@ -133,7 +109,7 @@ const MyPage = () => {
                                 <label className="block text-sm font-medium mb-1">이메일</label>
                                 <input
                                     type="email"
-                                    value={(me as ResponseMyInfoDto)?.data?.email || ''}
+                                    value={data?.data.email || ''}
                                     disabled
                                     className="w-full p-2 bg-zinc-700 rounded border border-zinc-600 text-gray-400"
                                 />
@@ -161,10 +137,10 @@ const MyPage = () => {
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
-                                    disabled={updateProfileMutation.isPending}
+                                    disabled={uploading}
                                     className="px-4 py-2 bg-pink-500 rounded hover:bg-pink-600 transition-colors"
                                 >
-                                    {updateProfileMutation.isPending ? '저장 중...' : '저장'}
+                                    {uploading ? '저장 중...' : '저장'}
                                 </button>
                                 <button
                                     type="button"
