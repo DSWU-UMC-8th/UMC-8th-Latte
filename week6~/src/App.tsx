@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouteObject, RouterProvider } from 'react-router-dom'
-import './App.css'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage';
 import LoginPage from './pages/LoginPage';
@@ -13,17 +12,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import LpDetailPage from './pages/LPDetailPage';
 
-const publicRoutes: RouteObject[] =[
+const publicRoutes: RouteObject[] = [
   {
     path: "/",
     element: <HomeLayout />,
     errorElement: <NotFoundPage />,
     children: [
-      { index: true, element: <HomePage /> },
       { path: "login", element: <LoginPage /> },
       { path: "signup", element: <SignupPage /> },
       { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage />},
-      { path: "lp/:id", element: <LpDetailPage /> },
     ],
   },
 ];
@@ -34,7 +31,9 @@ const protectedRoutes: RouteObject[] = [
     element: <ProtectedLayout />,
     errorElement: <NotFoundPage />,
     children: [
+      { index: true, element: <HomePage /> },
       { path: "mypage", element: <MyPage /> },
+      { path: "lp/:id", element: <LpDetailPage /> },
     ],
   }
 ]

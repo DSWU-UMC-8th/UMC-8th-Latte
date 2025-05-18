@@ -1,35 +1,31 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
-import { postSignin } from '../apis/auth';
-import { useAuth } from '../context/AuthContext';
+import useForm from "../hooks/useForms";
+import { UserSigninInformation, validateSignin } from "../utils/validate";
 import Header from "../components/Header";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const LoginPage = () => {
+    const { login, accessToken } = useAuth();
     const navigate = useNavigate();
-    const { login: handleLogin } = useAuth();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
 
-    const loginMutation = useMutation({
-        mutationFn: postSignin,
-        onSuccess: (data) => {
-            handleLogin(data.data.accessToken, data.data.refreshToken);
-            navigate('/');
+    useEffect(()=> { // 로그인 후 로그인 창 안 뜨게
+        if(accessToken){
+            navigate("/");
+        }
+    }, [navigate, accessToken]);
+
+    const { values, errors, touched, getInputProps } = useForm<UserSigninInformation>({
+        initialValue: {
+            email: "",
+            password: "",
         },
-        onError: (error) => {
-            console.error('로그인 실패:', error);
-            alert('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
-        },
+
+        validate: validateSignin,
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            await loginMutation.mutateAsync({ email, password });
-        } catch {
-            // Error will be handled by onError callback
-        }
+    const handleSubmit = async () => {
+        await login(values);
     };
 
     const handleGoogleLogin = () => {
@@ -38,42 +34,47 @@ const LoginPage = () => {
 
     // 오류가 하나라도 있거나, 입력값이 비어있으면 버튼 비활성화
     const isDisabled = 
-        Object.values(loginMutation.error || {}).some((error) => error.length > 0) || // 오류가 있으면 true
-        email === "" || password === ""; // 입력값이이 비어있으면 true
+        Object.values(errors || {}).some((error) => error.length > 0) || // 오류가 있으면 true
+        Object.values(values).some((value) => value === ""); // 입력값이이 비어있으면 true
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black">
-            <div className="bg-zinc-900 p-8 rounded-lg w-full max-w-md">
-                <Header title="로그인" />
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <input
-                            type="email"
-                            placeholder="이메일"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full p-2 bg-zinc-800 text-white rounded border border-zinc-700 focus:outline-none focus:border-pink-500"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <input
-                            type="password"
-                            placeholder="비밀번호"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full p-2 bg-zinc-800 text-white rounded border border-zinc-700 focus:outline-none focus:border-pink-500"
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={isDisabled}
-                        className="w-full py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors"
-                    >
-                        {loginMutation.isPending ? '로그인 중...' : '로그인'}
-                    </button>
-                </form>
+        <div className="flex flex-col justify-center items-center h-full gap-4
+            w-full bg-black text-white">
+            
+            <Header title="로그인" />
+            
+            <div className="flex flex-col gap-3">
+                <input
+                    {...getInputProps("email")}
+                    name="email"
+                    className={`disabled:bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm
+                        ${errors?.email && touched?.email ? "border-red-500" : "border-gray-300"}`}
+                    type={"email"}
+                    placeholder={"이메일"}
+                />
+                {errors?.email && touched.email && (
+                    <div className="text-red-500 text-sm">{errors.email}</div>
+                )}
+
+                <input
+                    {...getInputProps("password")}
+                    className={`disabled:bg-neutral-800 w-[300px] p-[10px] border-1 rounded-sm 
+                        ${errors?.password && touched?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                    type={"password"}
+                    placeholder={"비밀번호"}
+                />
+                {errors?.password && touched.password && (
+                    <div className="text-red-500 text-sm">{errors.password}</div>
+                )}
+
+                <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isDisabled}
+                    className= "w-full bg-pink-600 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-700 transition-colors cursor-pointer disabled:bg-neutral-800"
+                >
+                    로그인
+                </button>
                 <button
                     type="button"
                     onClick={handleGoogleLogin}
@@ -86,7 +87,8 @@ const LoginPage = () => {
                 </button>
             </div>
         </div>
-    );
+    )
 };
+
 
 export default LoginPage;

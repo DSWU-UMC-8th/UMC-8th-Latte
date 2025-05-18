@@ -1,10 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaSearch, FaUser } from "react-icons/fa";
 import { useEffect, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
-import { deleteAccount } from '../apis/auth';
-import { useMutation } from '@tanstack/react-query';
-
 interface Props {
     isOpen: boolean;
     onClose: () => void;
@@ -12,7 +8,6 @@ interface Props {
 
 const Sidebar = ({ isOpen, onClose }: Props) => {
     const ref = useRef<HTMLDivElement>(null);
-    const navigate = useNavigate();
     
     // 바깥 클릭 시 닫기
     useEffect(() => {
@@ -27,29 +22,29 @@ const Sidebar = ({ isOpen, onClose }: Props) => {
         return () => document.removeEventListener("mousedown", handleClick);
     }, [isOpen, onClose]);
     
-    const deleteMutation = useMutation({
-        mutationFn: deleteAccount,
-        onSuccess: () => {
-            navigate('/');
-        },
-    });
+    // const deleteMutation = useMutation({
+    //     mutationFn: deleteAccount,
+    //     onSuccess: () => {
+    //         navigate('/');
+    //     },
+    // });
 
-    const handleWithdrawal = () => {
-        if (window.confirm('정말로 탈퇴하시겠습니까?')) {
-            deleteMutation.mutate();
-        }
-    };
+    // const handleWithdrawal = () => {
+    //     if (window.confirm('정말로 탈퇴하시겠습니까?')) {
+    //         deleteMutation.mutate();
+    //     }
+    // };
 
     return (
         <aside
             ref={ref}
             className={`
-                w-56 h-full bg-black/90 text-white p-6 shadow-md
+                w-56 h-full bg-zinc-900 text-white p-6 shadow-md
                 ${isOpen ? "block" : "hidden"}
                 md:block
             `}
         >
-            <div className="text-white mb-130">
+            <div className=" bg-zinc-900 text-white mb-1">
                 <button
                     className="flex items-center gap-3 hover:text-pink-500 mt-5"
                 >
@@ -62,7 +57,7 @@ const Sidebar = ({ isOpen, onClose }: Props) => {
             </div>
 
             <button
-                onClick={handleWithdrawal}
+                // onClick={handleWithdrawal}
                 className="w-full text-left text-gray-400 hover:text-gray-300 transition-colors mt-auto"
             >
                 탈퇴하기

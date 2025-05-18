@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import { getMyInfo } from "../apis/auth";
 import { ResponseMyInfoDto } from "../types/auth";
 import useEditMyInfo from "../hooks/mutations/useEditMyInfo";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEY } from "../constants/key";
 
 const MyPage = () => {
     const [data, setData] = useState<ResponseMyInfoDto | null>(null);
@@ -14,21 +16,19 @@ const MyPage = () => {
 
     const { mutate: editInfoMutate } = useEditMyInfo();
 
-    const fetchUserData = async () => {
-        try {
-            const response = await getMyInfo();
-            setData(response);
-            setName(response.data.name);
-            setBio(response.data.bio ?? "");
-        } catch (error) {
-            console.error('Failed to fetch user data:', error);
-        }
-    };
+    // useQuery를 사용하여 데이터 가져오기
+    const { data: queryData } = useQuery<ResponseMyInfoDto>({
+        queryKey: [QUERY_KEY.myInfo],
+        queryFn: getMyInfo,
+    });
 
     useEffect(() => {
-        fetchUserData();
-    }, []);
-
+        if (queryData) {
+            setData(queryData);
+            setName(queryData.data.name);
+            setBio(queryData.data.bio ?? "");
+        }
+    }, [queryData]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,27 +39,36 @@ const MyPage = () => {
 
         setUploading(true);
         try {
+            let avatarUrl = null;
+            if (avatar) {
+                const reader = new FileReader();
+                avatarUrl = await new Promise<string>((resolve) => {
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.readAsDataURL(avatar);
+                });
+            }
+
             const updateData = {
                 name,
                 bio: bio || null,
-                avatar: avatar ? URL.createObjectURL(avatar) : null
+                avatar: avatarUrl || data?.data.avatar || null
             };
 
-            await editInfoMutate(updateData, {
-                onSuccess: async (response) => {
-                    console.log('Profile updated successfully:', response);
-                    await fetchUserData(); // 데이터 즉시 리로드
+            editInfoMutate(updateData, {
+                onSuccess: () => {
                     setIsEditing(false);
                 },
                 onError: (error) => {
                     console.error('Failed to update profile:', error);
                     alert('프로필 수정에 실패했습니다.');
+                },
+                onSettled: () => {
+                    setUploading(false);
                 }
             });
         } catch (error) {
             console.error('Error during profile update:', error);
             alert('프로필 수정에 실패했습니다.');
-        } finally {
             setUploading(false);
         }
     };

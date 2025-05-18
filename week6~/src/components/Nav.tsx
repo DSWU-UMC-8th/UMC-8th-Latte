@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getMyInfo, postLogout } from "../apis/auth";
-import { ResponseMyInfoDto } from "../types/auth";
 import { FaBars } from "react-icons/fa";
 import { useMutation } from '@tanstack/react-query';
+import { QUERY_KEY } from "../constants/key";
 
 interface NavbarProps {
     onToggleSidebar: () => void;
@@ -14,7 +14,6 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
     const { accessToken } = useAuth();
     const navigate = useNavigate();
     const { logout: handleLogout } = useAuth();
-    const [data, setData] = useState<ResponseMyInfoDto | null>(null);
 
     const logoutMutation = useMutation({
         mutationFn: postLogout,
@@ -32,16 +31,12 @@ const Navbar = ({ onToggleSidebar }: NavbarProps) => {
         else if (id === 'signup') navigate('/signup');
     };
 
-    useEffect(() => {
-        if (!accessToken) return;
-
-        const getData = async () => {
-            const response = await getMyInfo();
-            setData(response);
-        }
-
-        getData();
-    }, [accessToken]);
+    const { data } = useQuery({
+        queryKey: [QUERY_KEY.myInfo],
+        queryFn: getMyInfo,
+        enabled: !!accessToken, // 로그인 되어 있을 때만 호출
+        staleTime: 1000 * 60 * 5, // 5분 동안은 신선하다고 판단
+    });
 
     const handleLogoutClick = async () => {
         try {

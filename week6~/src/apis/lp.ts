@@ -86,19 +86,24 @@ export const deleteComment = async (lpId: number, commentId: number) => {
 };
 
 export const updateLp = async (lpId: number, formData: FormData) => {
-    const title = formData.get('title')?.toString() || '';
-    const content = formData.get('content')?.toString() || '';
-    const tags = JSON.parse(formData.get('tags')?.toString() || '[]');
+    try {
+        const title = formData.get('title')?.toString() || '';
+        const content = formData.get('content')?.toString() || '';
+        const tags = JSON.parse(formData.get('tags')?.toString() || '[]');
 
-    const lpData = {
-        title,
-        content,
-        tags,
-        published: true
-    };
+        const lpData = {
+            title,
+            content,
+            tags,
+            published: true
+        };
 
-    const { data } = await axiosInstance.patch(`/v1/lps/${lpId}`, lpData);
-    return data;
+        const { data } = await axiosInstance.patch(`/v1/lps/${lpId}`, lpData);
+        return data;
+    } catch (error) {
+        console.error('Error updating LP:', error);
+        throw error;
+    }
 };
 
 export const deleteLp = async (lpId: number) => {

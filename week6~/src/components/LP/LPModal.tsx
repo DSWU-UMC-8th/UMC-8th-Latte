@@ -1,35 +1,82 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createLp, updateLp } from '../../apis/lp';
+import { LpDetail, Tag } from '../../types/lp';
+
+interface InitialData {
+  title: string;
+  content: string;
+  tags: Tag[];
+}
 
 interface LPModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode?: 'create' | 'edit';
-  initialData?: any;
+  initialData?: InitialData;
   lpId?: number;
 }
 
 const LPModal = ({ isOpen, onClose, mode = 'create', initialData, lpId }: LPModalProps) => {
   const [title, setTitle] = useState(initialData?.title || '');
   const [content, setContent] = useState(initialData?.content || '');
-  const [tags, setTags] = useState<string[]>(initialData?.tags?.map((tag: any) => tag.name) || []);
+  const [tags, setTags] = useState<string[]>(initialData?.tags?.map((tag) => tag.name) || []);
   const [newTag, setNewTag] = useState('');
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: mode === 'create' ? createLp : (data: FormData) => updateLp(lpId!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lps'] });
-      if (mode === 'edit') {
-        queryClient.invalidateQueries({ queryKey: ['lpDetail', lpId] });
+    onMutate: async (formData) => {
+      if (mode === 'edit' && lpId) {
+        // 진행 중인 refetch들을 취소
+        await queryClient.cancelQueries({ queryKey: ['lpDetail', lpId] });
+
+        // 이전 데이터를 저장
+        const previousLp = queryClient.getQueryData<LpDetail>(['lpDetail', lpId]);
+
+        // 새로운 데이터로 UI 즉시 업데이트
+        const title = formData.get('title')?.toString() || '';
+        const content = formData.get('content')?.toString() || '';
+        const newTags = JSON.parse(formData.get('tags')?.toString() || '[]');
+
+        if (previousLp) {
+          queryClient.setQueryData<LpDetail>(['lpDetail', lpId], {
+            ...previousLp,
+            data: {
+              ...previousLp.data,
+              title,
+              content,
+              tags: newTags.map((name: string, index: number) => ({
+                id: previousLp.data.tags[index]?.id || Date.now() + index,
+                name
+              }))
+            }
+          });
+        }
+
+        return { previousLp };
       }
-      onClose();
+      return undefined;
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _variables, context) => {
+      // 에러 발생 시 이전 데이터로 롤백
+      if (mode === 'edit' && lpId && context?.previousLp) {
+        queryClient.setQueryData(['lpDetail', lpId], context.previousLp);
+      }
       console.error('Error:', error);
       setError(`LP ${mode === 'create' ? '생성' : '수정'} 중 오류가 발생했습니다.`);
+    },
+    onSuccess: () => {
+      // 성공 시 캐시 무효화 및 refetch
+      queryClient.invalidateQueries({ queryKey: ['lps'] });
+      if (mode === 'edit' && lpId) {
+        queryClient.invalidateQueries({ 
+          queryKey: ['lpDetail', lpId],
+          exact: true 
+        });
+      }
+      onClose();
     }
   });
 

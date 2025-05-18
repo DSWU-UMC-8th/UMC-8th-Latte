@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { createContext, PropsWithChildren, useContext, useState, useEffect } from "react";
 import { RequestSigninDto } from "../types/auth";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
 import { postLogout, postSignin } from "../apis/auth";
@@ -9,7 +9,6 @@ interface AuthContextType {
     refreshToken: string | null;
     login: (signInData: RequestSigninDto) => Promise<void>;
     logout: () => Promise<void>;
-
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -20,7 +19,6 @@ export const AuthContext = createContext<AuthContextType>({
 })
 
 export const AuthProvider = ({children}: PropsWithChildren) => {
-
     const {
         getItem: getAccessTokenFromStorage,
         setItem: setAccessTokenInStorage,
@@ -33,58 +31,70 @@ export const AuthProvider = ({children}: PropsWithChildren) => {
         removeItem: removeRefreshsTokenFromStorage,
     } = useLocalStorage(LOCAL_STORAGE_KEY.refreshToken);
 
-    const [accessToken, setAccessToken] = useState<string | null> (
-        getAccessTokenFromStorage(), // 지연 초기화 (페이지 이동시)
-    );
+    const [accessToken, setAccessToken] = useState<string | null>(() => {
+        const token = getAccessTokenFromStorage();
+        return token;
+    });
 
-    const [refreshToken, setRefreshToken] = useState<string | null> (
-        getRefreshTokenFromStorage(), // 지연 초기화 (페이지 이동시)
-    );
+    const [refreshToken, setRefreshToken] = useState<string | null>(() => {
+        const token = getRefreshTokenFromStorage();
+        return token;
+    });
 
-    const login = async(SiginData: RequestSigninDto) => {
-        const {data} = await postSignin(SiginData);
-
+    const login = async (signInData: RequestSigninDto) => {
         try {
-            if(data){
+            const { data } = await postSignin(signInData);
+            if (data) {
                 const newAccessToken = data.accessToken;
                 const newRefreshToken = data.refreshToken;
-    
-                setAccessTokenInStorage(newAccessToken); // localStroage 저장
+
+                setAccessTokenInStorage(newAccessToken);
                 setRefreshTokenInStorage(newRefreshToken);
-    
-                setAccessToken(newAccessToken); 
-                setRefreshToken(newRefreshToken); 
+                setAccessToken(newAccessToken);
+                setRefreshToken(newRefreshToken);
 
-                alert("로그인 성공");
-                window.location.href = "/"; //navigate는 router 안에서만 사용 가능 
+                window.location.href = "/";
             }
-
         } catch (error) {
-            console.error(error);
-            alert("로그인 실패");
+            console.error('Login error:', error);
+            alert('로그인에 실패했습니다.');
         }
-    }
+    };
 
     const logout = async() => {
         try {
             await postLogout();
+            alert('로그아웃 되었습니다.');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
             removeAccessTokenFromStorage();
             removeRefreshsTokenFromStorage();
-
-            setAccessToken(null); 
-            setRefreshToken(null); 
-
-            alert("로그아웃 성공");
-            window.location.href = "/";
-
-        } catch (error) {
-            console.error(error);
-            alert("로그아웃 실패");
+            setAccessToken(null);
+            setRefreshToken(null);
+            window.location.href = "/login";
         }
     };
 
+    // 토큰 상태가 변경될 때마다 localStorage 업데이트
+    useEffect(() => {
+        if (accessToken) {
+            setAccessTokenInStorage(accessToken);
+        } else {
+            removeAccessTokenFromStorage();
+        }
+    }, [accessToken, setAccessTokenInStorage, removeAccessTokenFromStorage]);
+
+    useEffect(() => {
+        if (refreshToken) {
+            setRefreshTokenInStorage(refreshToken);
+        } else {
+            removeRefreshsTokenFromStorage();
+        }
+    }, [refreshToken, setRefreshTokenInStorage, removeRefreshsTokenFromStorage]);
+
     return (
-        <AuthContext.Provider value={{ accessToken, refreshToken, login, logout}}>
+        <AuthContext.Provider value={{ accessToken, refreshToken, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
