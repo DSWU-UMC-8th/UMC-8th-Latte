@@ -5,12 +5,15 @@ import { useInView } from "react-intersection-observer";
 import LpCard from "../components/LpCard/LpCard";
 import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList";
 import LPModal from "../components/LPModal";
+import useDebounce from "../hooks/useDebounce";
+import { SEARCH_DEBOUNCE_DELAY } from "../constants/delay";
 
 const HomePage = () => {
     const [order, setOrder] = useState<PAGINATION_ORDER>(PAGINATION_ORDER.desc);
     // const {data, isPending, isError } = useGetLpList({order});
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const debouncedValue = useDebounce(search, SEARCH_DEBOUNCE_DELAY)
     
     const { 
         data:lps, 
@@ -19,7 +22,7 @@ const HomePage = () => {
         isPending, 
         fetchNextPage, 
         isError
-    } = useGetInfiniteLpList(3, search, PAGINATION_ORDER.desc);
+    } = useGetInfiniteLpList(3, debouncedValue, PAGINATION_ORDER.desc);
     
     // ref: 특정한 HTML요소 감시, inView: 그 요소가 화면에 보이면 true
     const { ref, inView } = useInView({
